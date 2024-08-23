@@ -15,7 +15,10 @@ app.use(express.urlencoded({ extended: true }));
 app.use(cors());
 
 app.use((req, res, next) => {
-  res.setHeader("Access-Control-Allow-Origin", "*");
+  res.setHeader(
+    "Access-Control-Allow-Origin",
+    "https://italiano-sunglasses-ecommerce.vercel.app/"
+  );
   res.setHeader("Access-Control-Allow-Credentials", "false");
   res.setHeader(
     "Access-Control-Allow-Headers",
