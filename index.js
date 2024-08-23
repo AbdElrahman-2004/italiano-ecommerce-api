@@ -17,7 +17,7 @@ app.use(cors());
 app.use((req, res, next) => {
   res.setHeader(
     "Access-Control-Allow-Origin",
-    "https://italiano-sunglasses-ecommerce.vercel.app/"
+    "https://italiano-sunglasses-ecommerce.vercel.app/*"
   );
   res.setHeader("Access-Control-Allow-Credentials", "false");
   res.setHeader(
