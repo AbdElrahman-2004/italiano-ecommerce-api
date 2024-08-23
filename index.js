@@ -17,6 +17,19 @@ app.use(cors());
 app.use("/api/products", productRouter);
 app.use("/images", express.static("uploads"));
 app.use("/admin-login", adminLoginRouter);
+app.use((req, res, next) => {
+  res.setHeader("Access-Control-Allow-Origin", "*");
+  res.setHeader("Access-Control-Allow-Credentials", "false");
+  res.setHeader(
+    "Access-Control-Allow-Headers",
+    "X-CSRF-Token,Origin, X-Requested-With, Content, Accept, Accept-Version, Content-Length, Content-MD5, Content-Type, Date, X-Api-Version, Authorization"
+  );
+  res.setHeader(
+    "Access-Control-Allow-Methods",
+    "GET, POST, PUT, DELETE, PATCH, OPTIONS"
+  );
+  next();
+});
 
 const port = process.env.PORT;
 const url = process.env.MONGO_DB_URI;
