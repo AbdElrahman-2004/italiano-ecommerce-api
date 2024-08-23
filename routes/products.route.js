@@ -11,19 +11,9 @@ const {
 const validationSchema = require("../middlewares/validateSchema");
 const appError = require("../utils/appError");
 const verifyToken = require("../middlewares/verifyToken");
+const { storage } = require("../storage/storage");
 
 const router = express.Router();
-
-const storage = multer.diskStorage({
-  destination: (req, res, cb) => {
-    cb(null, "uploads");
-  },
-  filename: (req, file, cb) => {
-    const ext = file.mimetype.split("/")[1];
-    const fileName = `product-${Date.now()}.${ext}`;
-    cb(null, fileName);
-  },
-});
 
 const fileFilter = (req, file, cb) => {
   const fileType = file.mimetype.split("/")[0];
@@ -53,5 +43,5 @@ router
   .put(verifyToken, upload.array("images"), validationSchema(), editProduct)
   .delete(deleteProduct);
 
-  router.get("/images/:imageName", getProductImage);
+router.get("/images/:imageName", getProductImage);
 module.exports = router;
