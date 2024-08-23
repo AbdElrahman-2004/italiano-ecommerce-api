@@ -4,6 +4,7 @@ const { SUCCESS, FAIL, ERROR } = require("../utils/httpStatus");
 const appError = require("../utils/appError");
 const { validationResult } = require("express-validator");
 const path = require("path");
+const { uploadToCloudinary } = require("../storage/storage");
 
 const getAllProducts = asyncWrapper(async (req, res, next) => {
   const query = req.query;
@@ -45,10 +46,12 @@ const addProduct = asyncWrapper(async (req, res, next) => {
     const error = appError.create(result.array(), 400, FAIL);
     return next(error);
   }
+  // const files = req.files.map((file) => file.filename);
+  console.log(req.file);
+  const data = await uploadToCloudinary(req.file.path, "product-images");
+  console.log("data", data);
 
-  const files = req.files.map((file) => file.filename);
-
-  const newProduct = await new Product({ ...req.body, images: files });
+  const newProduct = await new Product({ ...req.body, images: data.url });
   newProduct.save();
 
   res.status(201).json({
@@ -111,4 +114,10 @@ module.exports = {
   editProduct,
   deleteProduct,
   getProductImage,
+};
+
+exports.config = {
+  api: {
+    bodyParser: false,
+  },
 };

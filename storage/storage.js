@@ -1,21 +1,32 @@
 const cloudinary = require("cloudinary").v2;
-const { CloudinaryStorage } = require("multer-storage-cloudinary");
+const process = require("process");
 
 cloudinary.config({
-  cloud_name: process.env.CLOUD_NAME,
-  api_key: process.env.CLOUDINARY_KEY,
-  api_secret: process.env.CLOUDINARY_SECRET,
+  cloud_name: "dlzlvlsvt",
+  api_key: "846924366384599",
+  api_secret: "nbcUsO39xICc531GE5sXSquH2Ck",
 });
 
-const storage = new CloudinaryStorage({
-  cloudinary,
-  params: {
-    folder: "CloudinaryDemo",
-    allowedFormats: ["jpeg", "png", "jpg"],
-  },
-});
+const uploadToCloudinary = async (path, folder) => {
+  return cloudinary.uploader
+    .upload(path, {
+      folder,
+    })
+    .then((data) => {
+      return data;
+    })
+    .catch((err) => {
+      console.log(err);
+    });
+};
 
+const removeFormCloudinary = async (public_id) => {
+  await cloudinary.uploader.destroy(public_id, (err, result) => {
+    console.log(err, result);
+  });
+};
 
 module.exports = {
-  storage,
+  uploadToCloudinary,
+  removeFormCloudinary,
 };
