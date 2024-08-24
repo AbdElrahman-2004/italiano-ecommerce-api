@@ -28,13 +28,14 @@ const router = express.Router();
 
 //   cb(null, true);
 // };
+
 const storage = multer.diskStorage({});
 const upload = multer({ storage });
 
 router
   .route("/")
   .get(getAllProducts)
-  .post(verifyToken, upload.single("images"), validationSchema(), addProduct);
+  .post(verifyToken, upload.array("images"), validationSchema(), addProduct);
 
 router
   .route("/:productId")
@@ -42,5 +43,4 @@ router
   .put(verifyToken, upload.array("images"), validationSchema(), editProduct)
   .delete(deleteProduct);
 
-router.get("/images/:imageName", getProductImage);
 module.exports = router;

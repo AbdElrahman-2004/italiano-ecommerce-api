@@ -4,7 +4,10 @@ const { SUCCESS, FAIL, ERROR } = require("../utils/httpStatus");
 const appError = require("../utils/appError");
 const { validationResult } = require("express-validator");
 const path = require("path");
-const { uploadToCloudinary } = require("../storage/storage");
+const {
+  uploadToCloudinary,
+  removeFormCloudinary,
+} = require("../utils/handleCloudinary");
 
 const getAllProducts = asyncWrapper(async (req, res, next) => {
   const query = req.query;
@@ -46,12 +49,15 @@ const addProduct = asyncWrapper(async (req, res, next) => {
     const error = appError.create(result.array(), 400, FAIL);
     return next(error);
   }
-  // const files = req.files.map((file) => file.filename);
-  console.log(req.file);
-  const data = await uploadToCloudinary(req.file.path, "product-images");
-  console.log("data", data);
 
-  const newProduct = await new Product({ ...req.body, images: data.url });
+  const files = req.files.map((file) => file.path);
+
+  const imagesData = await uploadToCloudinary(files, "product-images");
+
+  const newProduct = await new Product({
+    ...req.body,
+    images: imagesData,
+  });
   newProduct.save();
 
   res.status(201).json({
@@ -89,23 +95,21 @@ const editProduct = asyncWrapper(async (req, res, next) => {
 
 const deleteProduct = asyncWrapper(async (req, res, next) => {
   const productId = req.params.productId;
-  const result = await Product.deleteOne({ _id: productId });
+  const deletedProduct = await Product.findByIdAndDelete(productId);
 
-  if (result.deletedCount === 0) {
+  if (!deletedProduct) {
     const error = appError.create("This product doesn't exist", 404, ERROR);
     return next(error);
   }
+
+  await removeFormCloudinary(deletedProduct.images);
+
   res.status(200).json({
     status: SUCCESS,
     data: null,
   });
 });
 
-const getProductImage = asyncWrapper(async (req, res, next) => {
-  const imageName = req.params.imageName;
-  const imagePath = path.join(__dirname, "..", "uploads", imageName);
-  res.sendFile(imagePath);
-});
 
 module.exports = {
   getAllProducts,
@@ -113,7 +117,6 @@ module.exports = {
   addProduct,
   editProduct,
   deleteProduct,
-  getProductImage,
 };
 
 exports.config = {
